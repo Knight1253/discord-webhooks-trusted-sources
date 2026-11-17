@@ -6,19 +6,35 @@ This guide gives a practical map of Discord webhook workflows. It is not an exha
 
 Discord's API models multiple webhook types, including incoming webhooks, channel-following webhooks, and application webhooks. They do not all have the same lifecycle or purpose. The Python example in this repository is for executing an incoming webhook URL. Application interaction callbacks and Discord-to-application event delivery have distinct protocols; consult the official docs before implementing them.
 
-## 2. Create and manage an incoming webhook
+## 2. Create and manage your own webhook
 
-A webhook can be created for a channel using Discord's client, or through the API. API creation and management require authorization and the relevant permissions (typically `MANAGE_WEBHOOKS`). Do not put a bot token in a client app or public repository.
+In Discord, open the target channel's settings, find **Integrations** (or the server's integrations settings), choose **Webhooks**, and create a webhook. Set its name/avatar and destination channel, then copy its URL. The exact UI labels can change. You need permission to manage webhooks in that server/channel.
 
-The official Webhook Resource documents these endpoint families:
+Treat the copied URL as a password: anyone who has it may be able to post through that webhook. Store it privately in `WEBHOOK_URL`, not in source code or a browser cookie. To use your own webhook with the example:
+
+```bash
+export WEBHOOK_URL='https://discord.com/api/webhooks/ID/TOKEN'
+python examples/webhook_sender.py --content 'Deployment succeeded' --username 'Deploy Alerts'
+```
+
+For a custom avatar, pass a publicly reachable image URL:
+
+```bash
+python examples/webhook_sender.py --content 'Build complete' --username 'Build Bot' --avatar-url 'https://example.com/avatar.png'
+```
+
+You can also customize the full JSON message (content, embeds, allowed mentions, etc.) using `--payload-file examples/custom_payload.json`. If `--username` or `--avatar-url` is supplied together with a payload file, those options override the corresponding top-level payload values.
+
+The included client accepts only HTTPS webhook URLs on `discord.com` to avoid sending credentials to arbitrary hosts. Supply the webhook URL via environment variable rather than a command-line argument, so it is less likely to appear in shell history or process listings. Revoke/delete and recreate the webhook if its URL is disclosed.
+
+For API-based creation or management, the official Webhook Resource documents endpoint families including:
 
 - Create a channel webhook: `POST /channels/{channel.id}/webhooks`
 - List channel webhooks: `GET /channels/{channel.id}/webhooks`
 - Get or modify a webhook: `GET` / `PATCH /webhooks/{webhook.id}`
 - Delete a webhook: `DELETE /webhooks/{webhook.id}`
-- Token-authenticated variants are available for some operations when the webhook ID and token are known.
 
-Use the official endpoint documentation for authorization requirements, request bodies, and response schemas. A webhook token is a bearer secret: possession can grant the ability to act as that webhook.
+API creation and management require authorization and relevant permissions (typically `MANAGE_WEBHOOKS`). Do not put a bot token in a client app or public repository. Use official endpoint documentation for authorization requirements, request bodies, and response schemas.
 
 ## 3. Execute a webhook
 
@@ -39,19 +55,11 @@ curl --fail-with-body \
 
 Replace the URL with a secret supplied at runtime; do not save a real token in this document. `wait=true` requests the created message response. For the standard no-wait response, Discord may return HTTP 204 with no body.
 
-The example script in `examples/webhook_sender.py` supports JSON payloads, a `thread_id`, and `wait=true`:
-
-```bash
-export WEBHOOK_URL='https://discord.com/api/webhooks/ID/TOKEN'
-python examples/webhook_sender.py --content 'Build completed' --wait
-python examples/webhook_sender.py --payload-file payload.json --thread-id THREAD_ID
-```
-
 ## 4. Threads, messages, and files
 
-- To post to a thread, use the execution options documented by Discord, such as `thread_id` where applicable. Some forum/media channel workflows may require a thread name or have other constraints.
+- To post to a thread, use execution options documented by Discord, such as `thread_id` where applicable. Some forum/media channel workflows may require a thread name or have other constraints.
 - Webhook-authored messages can be fetched, edited, or deleted using the webhook message routes documented in the Webhook Resource. Preserve the message ID returned when executing with `wait=true` if later operations need it.
-- File uploads use multipart form data and Discord's attachment conventions; they are not the same as a JSON-only request. Consult the current upload and message-payload documentation for multipart field names, attachment metadata, and limits.
+- File uploads use multipart form data and Discord's attachment conventions; they are not the same as a JSON-only request. Consult current upload and message-payload documentation for multipart field names, attachment metadata, and limits.
 - Mention parsing can notify users or roles. Set `allowed_mentions` explicitly when content may contain untrusted text; an empty parse list disables broad automatic parsing.
 
 Do not assume every message feature works with every webhook type, channel type, or endpoint. Check the current reference for constraints.
@@ -73,7 +81,7 @@ The included example makes a single request and reports errors. It does not auto
 ## 7. Security checklist
 
 - Store webhook URLs and bot credentials in a secret manager or protected environment variables.
-- Never commit secrets, paste them into logs, or expose them to client-side code.
+- Never commit secrets, paste them into logs, or expose them to client-side code or cookies.
 - Rotate/recreate a webhook immediately if its URL is disclosed.
 - Restrict who can create/manage webhooks in the server and channel.
 - Validate and constrain message data; avoid allowing untrusted users to control mentions, embeds, or destinations.

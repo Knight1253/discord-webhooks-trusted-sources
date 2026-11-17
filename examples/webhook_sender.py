@@ -17,15 +17,22 @@ from urllib.request import Request, urlopen
 def webhook_url_from_env():
     url = os.environ.get("WEBHOOK_URL", "")
     parts = urlsplit(url)
+    path_parts = parts.path.strip("/").split("/")
     if (
         parts.scheme != "https"
         or parts.hostname != "discord.com"
-        or not parts.path.startswith("/api/webhooks/")
-        or not parts.path.rstrip("/").split("/")[-1]
+        or parts.username is not None
+        or parts.password is not None
+        or parts.port is not None
+        or len(path_parts) != 4
+        or path_parts[0] != "api"
+        or path_parts[1] != "webhooks"
+        or not path_parts[2]
+        or not path_parts[3]
     ):
         raise ValueError(
             "Set WEBHOOK_URL to an HTTPS Discord incoming webhook URL "
-            "(https://discord.com/api/webhooks/...)."
+            "(https://discord.com/api/webhooks/ID/TOKEN)."
         )
     return url
 
@@ -46,13 +53,17 @@ def load_payload(args):
             payload = json.load(payload_file)
         if not isinstance(payload, dict):
             raise ValueError("The payload JSON must be an object.")
-        return payload
-    if not args.content:
-        raise ValueError("Provide --content or --payload-file.")
-    return {
-        "content": args.content,
-        "allowed_mentions": {"parse": []},
-    }
+    else:
+        payload = {
+            "content": args.content,
+            "allowed_mentions": {"parse": []},
+        }
+
+    if args.username:
+        payload["username"] = args.username
+    if args.avatar_url:
+        payload["avatar_url"] = args.avatar_url
+    return payload
 
 
 def main():
@@ -60,6 +71,8 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--content", help="Text for a single message")
     group.add_argument("--payload-file", help="Path to a JSON object payload")
+    parser.add_argument("--username", help="Custom display name for this message")
+    parser.add_argument("--avatar-url", help="Custom avatar image URL for this message")
     parser.add_argument("--thread-id", help="Post to an existing thread, when supported")
     parser.add_argument("--wait", action="store_true", help="Ask Discord to return the created message")
     parser.add_argument("--timeout", type=float, default=15.0, help="HTTP timeout in seconds (default: 15)")

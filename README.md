@@ -1,60 +1,43 @@
 # Discord Webhooks & Trusted Sources
 
-This repository is a practical, documentation-first collection for working with Discord webhooks safely and relying on trusted, official sources for Discord information.
+A practical, security-first reference for Discord webhooks: how to create and manage them, send and maintain messages, work with threads and files, understand authentication and rate limits, and find authoritative documentation.
 
-## Purpose
+> This is an independent community resource, not affiliated with or endorsed by Discord. Discord's API evolves; verify current behavior in Discord's official docs before deploying.
 
-The goal is to keep webhook usage examples, operational guidance, and official reference links in one place.
+## What this repo covers
 
-This repo is intended for:
-- engineers integrating Discord webhooks into apps or automation
-- teams wanting secure webhook implementation patterns
-- developers looking for official Discord documentation and trusted source links
+- Incoming webhooks and application/webhook event concepts
+- Creating, listing, fetching, modifying, and deleting webhooks
+- Executing webhooks, message edits/deletes, threads, and payload basics
+- Secure token handling, request validation, and rate-limit behavior
+- A single-message Python CLI example using only the standard library
+- Official references and guidance for evaluating secondary sources
 
-## Included
+Start with [`docs/webhook-guide.md`](docs/webhook-guide.md), then check [`docs/trusted-sources.md`](docs/trusted-sources.md).
 
-- webhook usage notes and security guidance
-- official Discord documentation links
-- sample webhook sender implementations
-- a trusted-source checklist for validating Discord information
+## Quick start
 
-## Repository layout
-
-- `README.md` — overview and quick links
-- `docs/trusted-sources.md` — official Discord and trusted references
-- `examples/webhook_sender.py` — Python webhook example
-- `.gitignore` — common local exclusions
-
-## Quick security checklist
-
-Before using a Discord webhook:
-
-- store the webhook URL in a secret manager or environment variable
-- never commit webhook URLs to source control
-- validate input before sending messages
-- avoid exposing webhook URLs in client-side code
-- rate-limit and log outbound requests
-- prefer server-side posting over browser code when possible
-
-## Official Discord resources
-
-See `docs/trusted-sources.md` for the main references.
-
-## Example usage
-
-Python example:
+Python 3.9+; no third-party packages are required.
 
 ```bash
-export WEBHOOK_URL="https://discord.com/api/webhooks/..."
-python examples/webhook_sender.py
+export WEBHOOK_URL='https://discord.com/api/webhooks/ID/TOKEN'
+python examples/webhook_sender.py --content 'Hello from my service'
 ```
 
-This sample sends a basic message payload to the configured webhook.
+You can also submit a JSON payload file:
 
-## Notes
+```bash
+python examples/webhook_sender.py --payload-file payload.json --thread-id THREAD_ID
+```
 
-Discord’s docs and API behavior can change over time. Always confirm details against the official docs before depending on a specific endpoint, field, or permission.
+The webhook URL is a secret. Do not put a real URL in source code, command history, screenshots, logs, or issue reports. Use a secret manager in production. If a webhook URL leaks, delete or regenerate that webhook in Discord and update your secret store.
 
-## License
+## Example scope and production considerations
 
-This repository is provided as a documentation and example resource. Check with your organization before using it in production systems.
+The example sends one JSON message per invocation. It intentionally does not create webhooks, accept arbitrary URLs, or implement bulk sending. It is a small reference, not a complete SDK or a substitute for application-level monitoring, secret management, input validation, and rate-limit handling.
+
+For files, interaction webhooks, event signatures, OAuth, or full endpoint details, follow the official references in the guide. Never use a webhook to send unsolicited, deceptive, abusive, or high-volume messages.
+
+## Contributing
+
+Keep examples minimal and safe by default. Link claims to current official Discord documentation, never include live webhook credentials, and clearly label any community-maintained material. See [`CONTRIBUTING.md`](CONTRIBUTING.md).

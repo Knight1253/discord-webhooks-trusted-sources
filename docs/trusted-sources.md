@@ -1,64 +1,35 @@
 # Trusted sources for Discord information
 
-Use official and maintainers-backed sources when validating Discord behavior, webhook rules, permissions, rate limits, or API changes.
+Use Discord-maintained sources first when checking webhook behavior, permissions, request schemas, rate limits, and API changes. This repository is an independent reference, not official Discord documentation.
 
-## Primary official sources
+## Official documentation
 
-1. Discord Developer Documentation
-   - https://discord.com/developers/docs/intro
-   - Main documentation for APIs, Webhooks, gateways, and bot integrations.
+- [Discord Developer Documentation](https://docs.discord.com/developers/docs/intro) — overview of Discord's developer platform.
+- [Webhook Resource](https://docs.discord.com/developers/resources/webhook) — webhook types, routes, payloads, and message operations.
+- [Webhooks on the platform](https://docs.discord.com/developers/platform/webhooks) — webhook concepts and platform guidance.
+- [API Reference](https://docs.discord.com/developers/reference) — API conventions and reference details.
+- [Rate Limits](https://docs.discord.com/developers/topics/rate-limits) — rate-limit response and handling guidance.
+- [Receiving an Event](https://docs.discord.com/developers/events/webhook-events) — event delivery and request validation, where applicable.
+- [Discord Developer Portal](https://discord.com/developers/applications) — manage applications and related settings.
+- [Discord Status](https://discordstatus.com/) — service incidents and availability.
+- [Discord Support](https://support.discord.com/hc/en-us) — user-facing product help and policies.
+- [Discord Developer Blog](https://discord.com/developers/blog) — official announcements.
 
-2. Discord Webhook Documentation
-   - https://discord.com/developers/docs/resources/webhook
-   - Canonical documentation for webhook endpoints, payloads, and behavior.
+## Official documentation source repository
 
-3. Discord API Reference
-   - https://discord.com/developers/docs/reference
-   - Reference material for Discord API request and response details.
+- [discord/discord-api-docs](https://github.com/discord/discord-api-docs) — Discord-maintained API documentation source and issue tracking. Verify that a repository or account is genuinely maintained by Discord before treating it as official.
 
-4. Discord Status Page
-   - https://discordstatus.com/
-   - For service availability and incidents.
+## Evaluating other sources
 
-5. Discord Help Center
-   - https://support.discord.com/hc/en-us
-   - For platform policies, account settings, and user-facing product behavior.
+When a claim matters, check:
 
-6. Discord Developer Blog / changelog-related updates
-   - https://discord.com/developers/blog
-   - Useful for product announcements and API-related updates.
+1. Is it directly stated in current Discord documentation or an announcement?
+2. Does it apply to the webhook type and endpoint in question?
+3. Is the information current, and does it agree with the documented schema and permission model?
+4. Is a third-party library's behavior merely a library choice rather than a Discord API guarantee?
 
-## GitHub-based official references
+Community discussions and SDK docs can be useful for examples and troubleshooting, but treat them as secondary. Do not rely on outdated snippets for token handling, rate limits, permissions, or payload constraints.
 
-- Discord API docs repo: https://github.com/discord/discord-api-docs
-- This repo is commonly used by community and Discord developers to track API documentation updates and changes.
+## Reporting a documentation correction
 
-## Trusted-source checklist
-
-When you are evaluating a webhook pattern or Discord API claim, prefer information that is:
-
-- published by Discord directly
-- in the official developer docs or support docs
-- backed by Discord’s GitHub API docs repo
-- consistent across official documentation and SDK examples
-
-Treat community posts as secondary references unless they match official documentation or are confirmed by Discord-maintained sources.
-
-## Practical guidance
-
-- For webhook payloads, confirm the exact JSON schema in the current docs.
-- For permission limitations, verify them in the relevant Discord documentation.
-- For rate limiting, use official docs and account/application-level limits.
-- For outages or platform issues, use Discord Status.
-
-## Example of a good source hierarchy
-
-1. Discord Developer Docs
-2. Discord API docs repo
-3. Discord support articles
-4. reputable developer community discussions
-5. unofficial blog posts or third-party articles
-
-## Warning
-
-Discord changes platform behavior and APIs over time. A claim from an older article or community post may be outdated or incorrect if it is not validated against the latest official docs.
+Open an issue with the claim and link to the relevant official source. Do not include webhook URLs, tokens, private messages, or other credentials in issues.
